@@ -26,4 +26,9 @@ public class ZMaskTest implements IZMask {
     public boolean isDebugging() {
         return true;
     }
+
+    @Override
+    public void log(String logdata) {
+
+    }
 }

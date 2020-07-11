@@ -20,7 +20,7 @@ import java.net.Socket;
 import java.util.UUID;
 
 public class ServerConnection extends AbstractConnection {
-    private ZServer zServer;
+    private final ZServer zServer;
 
     /**
      * Constructor for the ClientConnection class
@@ -34,7 +34,7 @@ public class ServerConnection extends AbstractConnection {
         super(socket, zMask, cryptContainer, UUID.randomUUID(), zServer.eventBus);
         this.zServer = zServer;
         if (zMask.isDebugging())
-            System.out.println("[" + Thread.currentThread().getName() + "] " + "Initializing new server connection from " + socket.getRemoteSocketAddress());
+            zMask.log("[" + Thread.currentThread().getName() + "] " + "Initializing new server connection from " + socket.getRemoteSocketAddress());
     }
 
 

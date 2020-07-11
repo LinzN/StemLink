@@ -22,8 +22,8 @@ import java.net.Socket;
 import java.util.UUID;
 
 public class ClientConnection extends AbstractConnection {
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
     private boolean keepAlive;
 
     /**
@@ -40,7 +40,7 @@ public class ClientConnection extends AbstractConnection {
         this.port = port;
         this.keepAlive = true;
         if (zMask.isDebugging())
-            System.out.println("[" + Thread.currentThread().getName() + "] " + "Initializing new client connection to /" + host + ":" + port);
+            zMask.log("[" + Thread.currentThread().getName() + "] " + "Initializing new client connection to /" + host + ":" + port);
     }
 
     /**

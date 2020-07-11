@@ -29,10 +29,10 @@ public class ZServer implements Runnable {
     ServerSocket server;
     Map<UUID, ServerConnection> jServerConnections;
     EventBus eventBus;
-    private IZMask zMask;
-    private String host;
-    private int port;
-    private CryptContainer cryptContainer;
+    private final IZMask zMask;
+    private final String host;
+    private final int port;
+    private final CryptContainer cryptContainer;
 
     /**
      * Constructor for the ZServer class
@@ -50,7 +50,7 @@ public class ZServer implements Runnable {
         this.cryptContainer = cryptContainer;
         this.eventBus = new EventBus();
         if (zMask.isDebugging())
-            System.out.println("[" + Thread.currentThread().getName() + "] " + "Initializing server on " + this.host + ":" + this.port);
+            zMask.log("[" + Thread.currentThread().getName() + "] " + "Initializing server on " + this.host + ":" + this.port);
     }
 
     /**
@@ -94,7 +94,7 @@ public class ZServer implements Runnable {
                 this.jServerConnections.put(serverConnection.getUUID(), serverConnection);
             } catch (IOException e) {
                 if (zMask.isDebugging())
-                    System.out.println("[" + Thread.currentThread().getName() + "] " + "Connection already closed!");
+                    zMask.log("[" + Thread.currentThread().getName() + "] " + "Connection already closed!");
             }
         } while (!this.server.isClosed());
     }

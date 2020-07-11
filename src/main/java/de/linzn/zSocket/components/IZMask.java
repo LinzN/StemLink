@@ -26,4 +26,11 @@ public interface IZMask {
      */
     boolean isDebugging();
 
+    /**
+     * Log Data
+     *
+     * @param logdata Logdata to log
+     */
+    void log(String logdata);
+
 }

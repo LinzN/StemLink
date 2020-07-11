@@ -29,8 +29,8 @@ public abstract class AbstractConnection implements Runnable {
     protected Socket socket;
     protected UUID uuid;
     protected EventBus eventBus;
-    private IZMask zMask;
-    private CryptManager cryptManager;
+    private final IZMask zMask;
+    private final CryptManager cryptManager;
 
     /**
      * Constructor for the AbstractConnection class
@@ -77,8 +77,8 @@ public abstract class AbstractConnection implements Runnable {
      * @param bytes   raw data for the event
      */
     private void triggerDataInput(String channel, byte[] bytes) {
-        if (zMask.isDebugging())
-            System.out.println("[" + Thread.currentThread().getName() + "] " + "IncomingData from Socket");
+        //if (zMask.isDebugging())
+        //    zMask.log("[" + Thread.currentThread().getName() + "] " + "IncomingData from Socket");
         this.zMask.runThread(() -> {
             IEvent iEvent = new ReceiveDataEvent(channel, this.uuid, bytes, this);
             this.eventBus.callEventHandler(iEvent);
@@ -90,7 +90,7 @@ public abstract class AbstractConnection implements Runnable {
      */
     protected void triggerNewConnect() {
         if (zMask.isDebugging())
-            System.out.println("[" + Thread.currentThread().getName() + "] " + "Connected to Socket");
+            zMask.log("[" + Thread.currentThread().getName() + "] " + "Connected to Socket");
         this.zMask.runThread(() -> {
             IEvent iEvent = new ConnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
@@ -102,7 +102,7 @@ public abstract class AbstractConnection implements Runnable {
      */
     protected void triggerDisconnect() {
         if (zMask.isDebugging())
-            System.out.println("[" + Thread.currentThread().getName() + "] " + "Disconnected from Socket");
+            zMask.log("[" + Thread.currentThread().getName() + "] " + "Disconnected from Socket");
         this.zMask.runThread(() -> {
             IEvent iEvent = new DisconnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
@@ -149,11 +149,11 @@ public abstract class AbstractConnection implements Runnable {
         /* Default input read*/
         if (headerChannel.isEmpty()) {
             if (this.zMask.isDebugging())
-                System.out.println("[" + Thread.currentThread().getName() + "] " + "No channel in header");
+                zMask.log("[" + Thread.currentThread().getName() + "] " + "No channel in header");
             return false;
         } else {
-            if (this.zMask.isDebugging())
-                System.out.println("[" + Thread.currentThread().getName() + "] " + "Data amount: " + fullData.length);
+            //if (this.zMask.isDebugging())
+            //    zMask.log("[" + Thread.currentThread().getName() + "] " + "Data amount: " + fullData.length);
             this.triggerDataInput(headerChannel, fullData);
             return true;
         }
@@ -186,7 +186,7 @@ public abstract class AbstractConnection implements Runnable {
             }
         } else {
             if (zMask.isDebugging())
-                System.out.println("[" + Thread.currentThread().getName() + "] " + "The JConnection is closed. No output possible!");
+                zMask.log("[" + Thread.currentThread().getName() + "] " + "The connection is closed. No output possible!");
         }
     }
 
