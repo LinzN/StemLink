@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.linzn</groupId>
     <packaging>jar</packaging>
-    <name>zSocket</name>
+    <name>stemLink</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -49,6 +49,6 @@
             </plugin>
         </plugins>
     </build>
-    <version>1.2.1</version>
-    <artifactId>zSocket</artifactId>
+    <version>1.0.0</version>
+    <artifactId>stemLink</artifactId>
 </project>
