@@ -61,7 +61,7 @@ public class ServerConnection extends AbstractConnection {
             } catch (IOException ignored) {
             }
             this.triggerDisconnect();
-            this.stemLinkServer.jServerConnections.remove(this.uuid);
+            this.stemLinkServer.stemLinks.remove(this.uuid);
         }
     }
 }

@@ -13,7 +13,6 @@ package de.linzn.stemLink.connections.server;
 
 import de.linzn.stemLink.components.ILinkMask;
 import de.linzn.stemLink.components.encryption.CryptContainer;
-import de.linzn.stemLink.components.events.IListener;
 import de.linzn.stemLink.components.events.handler.EventBus;
 
 import java.io.IOException;
@@ -27,13 +26,13 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class StemLinkServer implements Runnable {
-    ServerSocket server;
-    Map<UUID, ServerConnection> jServerConnections;
-    EventBus eventBus;
     private final ILinkMask iLinkMask;
     private final String host;
     private final int port;
     private final CryptContainer cryptContainer;
+    ServerSocket server;
+    Map<UUID, ServerConnection> stemLinks;
+    EventBus eventBus;
 
     /**
      * Constructor for the StemLinkServer class
@@ -47,9 +46,9 @@ public class StemLinkServer implements Runnable {
         this.host = host;
         this.port = port;
         this.iLinkMask = iLinkMask;
-        this.jServerConnections = new HashMap<>();
+        this.stemLinks = new HashMap<>();
         this.cryptContainer = cryptContainer;
-        this.eventBus = new EventBus();
+        this.eventBus = new EventBus(iLinkMask);
         iLinkMask.log("Initializing StemLinkServer on " + this.host + ":" + this.port, Level.INFO);
     }
 
@@ -72,11 +71,11 @@ public class StemLinkServer implements Runnable {
     public void closeServer() {
         try {
             this.server.close();
-            ArrayList<UUID> uuidList = new ArrayList<>(this.jServerConnections.keySet());
+            ArrayList<UUID> uuidList = new ArrayList<>(this.stemLinks.keySet());
             for (UUID uuid : uuidList) {
-                this.jServerConnections.get(uuid).setDisable();
+                this.stemLinks.get(uuid).setDisable();
             }
-            this.jServerConnections.clear();
+            this.stemLinks.clear();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,14 +83,14 @@ public class StemLinkServer implements Runnable {
 
     @Override
     public void run() {
-        Thread.currentThread().setName("StemLinkServer");
+        Thread.currentThread().setName("StemLink");
         do {
             try {
                 Socket socket = this.server.accept();
                 socket.setTcpNoDelay(true);
                 ServerConnection serverConnection = new ServerConnection(socket, this, this.iLinkMask, this.cryptContainer);
                 serverConnection.setEnable();
-                this.jServerConnections.put(serverConnection.getUUID(), serverConnection);
+                this.stemLinks.put(serverConnection.getUUID(), serverConnection);
             } catch (IOException e) {
                 iLinkMask.log("Connection already closed!", Level.SEVERE);
             }
@@ -105,7 +104,7 @@ public class StemLinkServer implements Runnable {
      * @return Returns the client if exist otherwise null
      */
     public ServerConnection getClient(UUID uuid) {
-        return this.jServerConnections.get(uuid);
+        return this.stemLinks.get(uuid);
     }
 
     /**
@@ -114,25 +113,25 @@ public class StemLinkServer implements Runnable {
      * @return Returns HashMap of all client connections
      */
     public Map<UUID, ServerConnection> getClients() {
-        return this.jServerConnections;
+        return this.stemLinks;
     }
 
     /**
-     * Register a new IListener
+     * Register a new Eventlistener
      *
-     * @param iListener IListener to register
+     * @param classInstance Event listener instance to register
      */
-    public void registerEvents(IListener iListener) {
-        this.eventBus.register(iListener);
+    public void registerEvents(Object classInstance) {
+        this.eventBus.register(classInstance);
     }
 
     /**
-     * Unregister an existing IListener
+     * Unregister an existing Event Listener
      *
-     * @param iListener IListener to unregister
+     * @param classInstance Event Listener to unregister
      */
-    public void unregisterEvents(IListener iListener) {
-        this.eventBus.unregister(iListener);
+    public void unregisterEvents(Object classInstance) {
+        this.eventBus.unregister(classInstance);
     }
 
 }

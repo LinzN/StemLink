@@ -11,20 +11,24 @@
 
 package de.linzn.stemLink.components.events.handler;
 
+import de.linzn.stemLink.components.ILinkMask;
 import de.linzn.stemLink.components.events.IEvent;
-import de.linzn.stemLink.components.events.IListener;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class EventBus {
-    private final Map<IListener, Map<Class<IEvent>, Method>> listenerSetMap;
+    private final Map<Object, Map<Class<IEvent>, Method>> listenerSetMap;
 
-    public EventBus() {
+    private final ILinkMask iLinkMask;
+
+    public EventBus(ILinkMask iLinkMask) {
         this.listenerSetMap = new HashMap<>();
+        this.iLinkMask = iLinkMask;
     }
 
     /**
@@ -33,7 +37,7 @@ public class EventBus {
      * @param listener Listener to check if a method has an annotation
      * @return Map with event class and methods for this listener
      */
-    private Map<Class<IEvent>, Method> findHandlers(IListener listener) {
+    private Map<Class<IEvent>, Method> findHandlers(Object listener) {
         Map<Class<IEvent>, Method> methods = new HashMap<>();
 
         for (Method m : listener.getClass().getDeclaredMethods()) {
@@ -41,7 +45,7 @@ public class EventBus {
             if (annotation != null) {
                 Class<?>[] params = m.getParameterTypes();
                 if (params.length != 1) {
-                    System.out.println("Method " + m + " in class " + listener.getClass() + " annotated with " + annotation + " does not have single argument");
+                    iLinkMask.log("Method " + m + " in class " + listener.getClass() + " annotated with " + annotation + " does not have single argument", Level.SEVERE);
                     continue;
                 }
                 Class<IEvent> iEvent = (Class<IEvent>) params[0];
@@ -55,13 +59,13 @@ public class EventBus {
     /**
      * Call a listener method
      *
-     * @param event     IEvent to call
-     * @param method    Method in listener
-     * @param iListener IListener object which contains the method to call
+     * @param event         IEvent to call
+     * @param method        Method in listener
+     * @param classInstance classInstance object which contains the method to call
      */
-    private void callMethod(IEvent event, Method method, IListener iListener) {
+    private void callMethod(IEvent event, Method method, Object classInstance) {
         try {
-            method.invoke(iListener, event);
+            method.invoke(classInstance, event);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -70,21 +74,17 @@ public class EventBus {
     /**
      * Call all listener with the IEvent
      *
-     * @param event IEvent to call in IListener
+     * @param event IEvent to call in classInstance
      */
     public void callEventHandler(IEvent event) {
-        for (IListener iListener : this.listenerSetMap.keySet()) {
-            Map<Class<IEvent>, Method> handler = this.listenerSetMap.get(iListener);
+        for (Object classInstance : this.listenerSetMap.keySet()) {
+            Map<Class<IEvent>, Method> handler = this.listenerSetMap.get(classInstance);
             for (Class<IEvent> iClass : handler.keySet()) {
                 if (iClass.equals(event.getClass())) {
-                    if (event instanceof ReceiveDataEvent) {
-                        EventHandler annotation = handler.get(iClass).getAnnotation(EventHandler.class);
-                        String annotationChannel = annotation.channel();
-                        if (annotationChannel.isEmpty() || ((ReceiveDataEvent) event).getChannel().equalsIgnoreCase(annotationChannel)) {
-                            callMethod(event, handler.get(iClass), iListener);
-                        }
-                    } else {
-                        callMethod(event, handler.get(iClass), iListener);
+                    EventHandler annotation = handler.get(iClass).getAnnotation(EventHandler.class);
+                    String annotationChannel = annotation.channel();
+                    if (annotationChannel.isEmpty() || ((ReceiveDataEvent) event).getChannel().equalsIgnoreCase(annotationChannel)) {
+                        callMethod(event, handler.get(iClass), classInstance);
                     }
                 }
             }
@@ -92,22 +92,22 @@ public class EventBus {
     }
 
     /**
-     * Register a new IListener
+     * Register a new Event listener classInstance
      *
-     * @param listener IListener to register
+     * @param classInstance Event listener classInstance to register
      */
-    public void register(IListener listener) {
-        Map<Class<IEvent>, Method> handler = findHandlers(listener);
-        this.listenerSetMap.put(listener, handler);
+    public void register(Object classInstance) {
+        Map<Class<IEvent>, Method> handler = findHandlers(classInstance);
+        this.listenerSetMap.put(classInstance, handler);
     }
 
 
     /**
-     * Unregister a IListener
+     * Unregister a event listener classInstance
      *
-     * @param listener IListener to unregister
+     * @param classInstance Event listener classInstance to unregister
      */
-    public void unregister(IListener listener) {
-        listenerSetMap.remove(listener);
+    public void unregister(Object classInstance) {
+        listenerSetMap.remove(classInstance);
     }
 }

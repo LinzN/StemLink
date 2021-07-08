@@ -27,11 +27,11 @@ import java.util.logging.Level;
 
 public abstract class AbstractConnection implements Runnable {
 
+    private final ILinkMask iLinkMask;
+    private final CryptManager cryptManager;
     protected Socket socket;
     protected UUID uuid;
     protected EventBus eventBus;
-    private final ILinkMask iLinkMask;
-    private final CryptManager cryptManager;
 
     /**
      * Constructor for the AbstractConnection class

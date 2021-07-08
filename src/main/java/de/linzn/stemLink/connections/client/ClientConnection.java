@@ -13,7 +13,6 @@ package de.linzn.stemLink.connections.client;
 
 import de.linzn.stemLink.components.ILinkMask;
 import de.linzn.stemLink.components.encryption.CryptContainer;
-import de.linzn.stemLink.components.events.IListener;
 import de.linzn.stemLink.components.events.handler.EventBus;
 import de.linzn.stemLink.connections.AbstractConnection;
 
@@ -36,7 +35,7 @@ public class ClientConnection extends AbstractConnection {
      * @param cryptContainer the CryptContainer for encryption in the client
      */
     public ClientConnection(String host, int port, ILinkMask iLinkMask, CryptContainer cryptContainer) {
-        super(new Socket(), iLinkMask, cryptContainer, new UUID(0L, 0L), new EventBus());
+        super(new Socket(), iLinkMask, cryptContainer, new UUID(0L, 0L), new EventBus(iLinkMask));
         this.host = host;
         this.port = port;
         this.keepAlive = true;
@@ -101,20 +100,20 @@ public class ClientConnection extends AbstractConnection {
 
 
     /**
-     * Register a new IListener
+     * Register a new classInstance
      *
-     * @param iListener IListener to register
+     * @param classInstance Event listener classInstance to register
      */
-    public void registerEvents(IListener iListener) {
-        this.eventBus.register(iListener);
+    public void registerEvents(Object classInstance) {
+        this.eventBus.register(classInstance);
     }
 
     /**
      * Unregister an existing IListener
      *
-     * @param iListener IListener to unregister
+     * @param classInstance Event listener classInstance to unregister
      */
-    public void unregisterEvents(IListener iListener) {
-        this.eventBus.unregister(iListener);
+    public void unregisterEvents(Object classInstance) {
+        this.eventBus.unregister(classInstance);
     }
 }

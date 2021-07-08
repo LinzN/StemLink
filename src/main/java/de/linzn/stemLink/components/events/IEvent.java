@@ -17,4 +17,5 @@ import de.linzn.stemLink.connections.AbstractConnection;
 public interface IEvent {
 
     AbstractConnection getConnection();
+
 }

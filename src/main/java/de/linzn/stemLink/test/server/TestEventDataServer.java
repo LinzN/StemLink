@@ -11,14 +11,13 @@
 
 package de.linzn.stemLink.test.server;
 
-import de.linzn.stemLink.components.events.IListener;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 import de.linzn.stemLink.components.events.handler.EventHandler;
 import de.linzn.stemLink.test.ServerTest;
 
 import java.io.*;
 
-public class TestEventDataServer implements IListener {
+public class TestEventDataServer {
 
     @EventHandler(channel = "test_echo_1")
     public void onReceiveDataEvent(ReceiveDataEvent event) {

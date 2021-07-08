@@ -13,10 +13,9 @@ package de.linzn.stemLink.test.server;
 
 import de.linzn.stemLink.components.events.ConnectEvent;
 import de.linzn.stemLink.components.events.DisconnectEvent;
-import de.linzn.stemLink.components.events.IListener;
 import de.linzn.stemLink.components.events.handler.EventHandler;
 
-public class TestEventConnectionServer implements IListener {
+public class TestEventConnectionServer {
 
     @EventHandler
     public void onConnectEvent(ConnectEvent event) {

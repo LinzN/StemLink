@@ -11,7 +11,6 @@
 
 package de.linzn.stemLink.test.client1;
 
-import de.linzn.stemLink.components.events.IListener;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 import de.linzn.stemLink.components.events.handler.EventHandler;
 import de.linzn.stemLink.test.ServerTest;
@@ -20,7 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class TestEventDataClient implements IListener {
+public class TestEventDataClient {
 
     @EventHandler(channel = "test_echo_1")
     public void onReceiveDataEvent(ReceiveDataEvent event) {
