@@ -14,6 +14,7 @@ package de.linzn.stemLink.test.utils;
 import de.linzn.stemLink.components.ILinkMask;
 
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 public class ILinkMaskTest implements ILinkMask {
 
@@ -23,12 +24,7 @@ public class ILinkMaskTest implements ILinkMask {
     }
 
     @Override
-    public boolean isDebugging() {
-        return true;
-    }
-
-    @Override
-    public void log(String logdata) {
-
+    public void log(String logdata, Level loglevel) {
+        System.out.println(loglevel.getName() + "::" + logdata);
     }
 }

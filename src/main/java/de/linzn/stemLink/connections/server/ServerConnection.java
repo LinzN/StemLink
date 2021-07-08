@@ -18,6 +18,7 @@ import de.linzn.stemLink.connections.AbstractConnection;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class ServerConnection extends AbstractConnection {
     private final StemLinkServer stemLinkServer;
@@ -33,8 +34,7 @@ public class ServerConnection extends AbstractConnection {
     ServerConnection(Socket socket, StemLinkServer stemLinkServer, ILinkMask iLinkMask, CryptContainer cryptContainer) {
         super(socket, iLinkMask, cryptContainer, UUID.randomUUID(), stemLinkServer.eventBus);
         this.stemLinkServer = stemLinkServer;
-        if (iLinkMask.isDebugging())
-            iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Initializing new server connection from " + socket.getRemoteSocketAddress());
+        iLinkMask.log("Initializing new server connection from " + socket.getRemoteSocketAddress(), Level.INFO);
     }
 
 

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class StemLinkServer implements Runnable {
     ServerSocket server;
@@ -49,8 +50,7 @@ public class StemLinkServer implements Runnable {
         this.jServerConnections = new HashMap<>();
         this.cryptContainer = cryptContainer;
         this.eventBus = new EventBus();
-        if (iLinkMask.isDebugging())
-            iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Initializing server on " + this.host + ":" + this.port);
+        iLinkMask.log("Initializing StemLinkServer on " + this.host + ":" + this.port, Level.INFO);
     }
 
     /**
@@ -93,8 +93,7 @@ public class StemLinkServer implements Runnable {
                 serverConnection.setEnable();
                 this.jServerConnections.put(serverConnection.getUUID(), serverConnection);
             } catch (IOException e) {
-                if (iLinkMask.isDebugging())
-                    iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Connection already closed!");
+                iLinkMask.log("Connection already closed!", Level.SEVERE);
             }
         } while (!this.server.isClosed());
     }

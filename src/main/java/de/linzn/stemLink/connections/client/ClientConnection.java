@@ -20,6 +20,7 @@ import de.linzn.stemLink.connections.AbstractConnection;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class ClientConnection extends AbstractConnection {
     private final String host;
@@ -39,8 +40,7 @@ public class ClientConnection extends AbstractConnection {
         this.host = host;
         this.port = port;
         this.keepAlive = true;
-        if (iLinkMask.isDebugging())
-            iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Initializing new client connection to /" + host + ":" + port);
+        iLinkMask.log("Initializing new client connection to /" + host + ":" + port, Level.INFO);
     }
 
     /**

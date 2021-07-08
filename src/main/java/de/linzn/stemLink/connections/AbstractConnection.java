@@ -23,6 +23,7 @@ import de.linzn.stemLink.components.events.handler.EventBus;
 import java.io.*;
 import java.net.Socket;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public abstract class AbstractConnection implements Runnable {
 
@@ -89,8 +90,7 @@ public abstract class AbstractConnection implements Runnable {
      * Trigger a new connect event
      */
     protected void triggerNewConnect() {
-        if (iLinkMask.isDebugging())
-            iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Connected to Socket");
+        iLinkMask.log("Connected to Socket", Level.INFO);
         this.iLinkMask.runThread(() -> {
             IEvent iEvent = new ConnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
@@ -101,8 +101,7 @@ public abstract class AbstractConnection implements Runnable {
      * Trigger a disconnect event
      */
     protected void triggerDisconnect() {
-        if (iLinkMask.isDebugging())
-            iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Disconnected from Socket");
+        iLinkMask.log("Disconnected from Socket", Level.INFO);
         this.iLinkMask.runThread(() -> {
             IEvent iEvent = new DisconnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
@@ -148,8 +147,7 @@ public abstract class AbstractConnection implements Runnable {
 
         /* Default input read*/
         if (headerChannel.isEmpty()) {
-            if (this.iLinkMask.isDebugging())
-                iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "No channel in header");
+            iLinkMask.log("No channel in header", Level.SEVERE);
             return false;
         } else {
             //if (this.iLinkMask.isDebugging())
@@ -185,8 +183,7 @@ public abstract class AbstractConnection implements Runnable {
                 e.printStackTrace();
             }
         } else {
-            if (iLinkMask.isDebugging())
-                iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "The connection is closed. No output possible!");
+            iLinkMask.log("The connection is closed. No output possible!", Level.SEVERE);
         }
     }
 

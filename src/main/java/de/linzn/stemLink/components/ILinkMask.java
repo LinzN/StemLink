@@ -11,6 +11,8 @@
 
 package de.linzn.stemLink.components;
 
+import java.util.logging.Level;
+
 public interface ILinkMask {
     /**
      * Template for SingleThreadExecutor
@@ -20,17 +22,8 @@ public interface ILinkMask {
     void runThread(Runnable run);
 
     /**
-     * Get debugging mode
-     *
-     * @return boolean value if debugging is enabled
+     * @param log   info to log
+     * @param level log level
      */
-    boolean isDebugging();
-
-    /**
-     * Log Data
-     *
-     * @param logdata Logdata to log
-     */
-    void log(String logdata);
-
+    void log(String log, Level level);
 }
