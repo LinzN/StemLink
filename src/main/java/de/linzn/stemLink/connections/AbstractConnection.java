@@ -90,7 +90,7 @@ public abstract class AbstractConnection implements Runnable {
      * Trigger a new connect event
      */
     protected void triggerNewConnect() {
-        iLinkMask.log("Connected to Socket", Level.INFO);
+        iLinkMask.log("Connected to Socket", Level.FINE);
         this.iLinkMask.runThread(() -> {
             IEvent iEvent = new ConnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
@@ -101,7 +101,7 @@ public abstract class AbstractConnection implements Runnable {
      * Trigger a disconnect event
      */
     protected void triggerDisconnect() {
-        iLinkMask.log("Disconnected from Socket", Level.INFO);
+        iLinkMask.log("Disconnected from Socket", Level.FINE);
         this.iLinkMask.runThread(() -> {
             IEvent iEvent = new DisconnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
