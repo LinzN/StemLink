@@ -13,7 +13,7 @@ package de.linzn.stemLink.components;
 
 import java.util.logging.Level;
 
-public interface StemLinkWrapper {
+public interface IStemLinkWrapper {
     /**
      * Template for SingleThreadExecutor
      *

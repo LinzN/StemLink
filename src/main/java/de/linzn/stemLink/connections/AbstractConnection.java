@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.connections;
 
-import de.linzn.stemLink.components.StemLinkWrapper;
+import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.encryption.CryptManager;
 import de.linzn.stemLink.components.events.ConnectEvent;
@@ -28,7 +28,7 @@ import java.util.logging.Level;
 public abstract class AbstractConnection implements Runnable {
 
     protected final CryptManager cryptManager;
-    protected final StemLinkWrapper stemLinkWrapper;
+    protected final IStemLinkWrapper stemLinkWrapper;
     protected Socket socket;
     protected UUID uuid;
     protected EventBus eventBus;
@@ -42,7 +42,7 @@ public abstract class AbstractConnection implements Runnable {
      * @param uuid            the uuid for this client
      * @param eventBus        the eventBus for the connection
      */
-    public AbstractConnection(Socket socket, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer, UUID uuid, EventBus eventBus) {
+    public AbstractConnection(Socket socket, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer, UUID uuid, EventBus eventBus) {
         this.socket = socket;
         this.stemLinkWrapper = stemLinkWrapper;
         this.cryptManager = new CryptManager(cryptContainer);

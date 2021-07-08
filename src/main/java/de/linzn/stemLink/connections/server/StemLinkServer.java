@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.connections.server;
 
-import de.linzn.stemLink.components.StemLinkWrapper;
+import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
 
@@ -26,7 +26,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class StemLinkServer implements Runnable {
-    private final StemLinkWrapper stemLinkWrapper;
+    private final IStemLinkWrapper stemLinkWrapper;
     private final String host;
     private final int port;
     private final CryptContainer cryptContainer;
@@ -42,7 +42,7 @@ public class StemLinkServer implements Runnable {
      * @param stemLinkWrapper the ILinkMask mask class
      * @param cryptContainer  the CryptContainer for encryption in the client
      */
-    public StemLinkServer(String host, int port, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
+    public StemLinkServer(String host, int port, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
         this.host = host;
         this.port = port;
         this.stemLinkWrapper = stemLinkWrapper;

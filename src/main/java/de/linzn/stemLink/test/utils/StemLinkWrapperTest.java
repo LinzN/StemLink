@@ -11,12 +11,12 @@
 
 package de.linzn.stemLink.test.utils;
 
-import de.linzn.stemLink.components.StemLinkWrapper;
+import de.linzn.stemLink.components.IStemLinkWrapper;
 
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
-public class StemLinkWrapperTest implements StemLinkWrapper {
+public class StemLinkWrapperTest implements IStemLinkWrapper {
 
     @Override
     public void runThread(Runnable run) {

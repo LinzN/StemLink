@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.connections.server;
 
-import de.linzn.stemLink.components.StemLinkWrapper;
+import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.connections.AbstractConnection;
 
@@ -33,7 +33,7 @@ public class ServerConnection extends AbstractConnection {
      * @param stemLinkWrapper the iLinkMask mask class
      * @param cryptContainer  the CryptContainer for encryption in the client
      */
-    ServerConnection(Socket socket, StemLinkServer stemLinkServer, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
+    ServerConnection(Socket socket, StemLinkServer stemLinkServer, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
         super(socket, stemLinkWrapper, cryptContainer, new UUID(0, 0), stemLinkServer.eventBus);
         this.stemLinkServer = stemLinkServer;
         stemLinkWrapper.log("Initializing new server connection from " + socket.getRemoteSocketAddress(), Level.INFO);

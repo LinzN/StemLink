@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.connections.client;
 
-import de.linzn.stemLink.components.StemLinkWrapper;
+import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
 import de.linzn.stemLink.connections.AbstractConnection;
@@ -36,7 +36,7 @@ public class ClientConnection extends AbstractConnection {
      * @param stemLinkWrapper the ILinkMask mask class
      * @param cryptContainer  the CryptContainer for encryption in the client
      */
-    public ClientConnection(String host, int port, UUID clientUUID, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
+    public ClientConnection(String host, int port, UUID clientUUID, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
         super(new Socket(), stemLinkWrapper, cryptContainer, clientUUID, new EventBus(stemLinkWrapper));
         this.host = host;
         this.port = port;

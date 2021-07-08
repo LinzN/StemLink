@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.components.events.handler;
 
-import de.linzn.stemLink.components.StemLinkWrapper;
+import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.events.IEvent;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 
@@ -24,9 +24,9 @@ import java.util.logging.Level;
 public class EventBus {
     private final Map<Object, Map<Class<IEvent>, Method>> listenerSetMap;
 
-    private final StemLinkWrapper stemLinkWrapper;
+    private final IStemLinkWrapper stemLinkWrapper;
 
-    public EventBus(StemLinkWrapper stemLinkWrapper) {
+    public EventBus(IStemLinkWrapper stemLinkWrapper) {
         this.listenerSetMap = new HashMap<>();
         this.stemLinkWrapper = stemLinkWrapper;
     }
