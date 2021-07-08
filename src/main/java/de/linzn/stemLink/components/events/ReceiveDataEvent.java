@@ -68,7 +68,8 @@ public class ReceiveDataEvent implements IEvent {
      *
      * @return The client connection
      */
-    public AbstractConnection getClientConnection() {
+    @Override
+    public AbstractConnection getConnection() {
         return this.abstractConnection;
     }
 }

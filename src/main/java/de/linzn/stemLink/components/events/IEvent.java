@@ -12,8 +12,9 @@
 package de.linzn.stemLink.components.events;
 
 
+import de.linzn.stemLink.connections.AbstractConnection;
+
 public interface IEvent {
-/**
- * Empty interface class for assign
- */
+
+    AbstractConnection getConnection();
 }

@@ -34,7 +34,7 @@ public class TestEventDataServer implements IListener {
             DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
             dataOutputStream.writeUTF(hexCode);
             dataOutputStream.writeInt(intCode);
-            event.getClientConnection().writeOutput("test_echo_1", byteArrayOutputStream.toByteArray());
+            event.getConnection().writeOutput("test_echo_1", byteArrayOutputStream.toByteArray());
 
         } catch (IOException e) {
             e.printStackTrace();

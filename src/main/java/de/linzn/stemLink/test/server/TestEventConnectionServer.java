@@ -20,11 +20,11 @@ public class TestEventConnectionServer implements IListener {
 
     @EventHandler
     public void onConnectEvent(ConnectEvent event) {
-        System.out.println("New client connected: " + event.getClientConnection().getUUID());
+        System.out.println("New client connected: " + event.getConnection().getUUID());
     }
 
     @EventHandler
     public void onDisconnectEvent(DisconnectEvent event) {
-        System.out.println("Old client disconnected: " + event.getClientConnection().getUUID());
+        System.out.println("Old client disconnected: " + event.getConnection().getUUID());
     }
 }
