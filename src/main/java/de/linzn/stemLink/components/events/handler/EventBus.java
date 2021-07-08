@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.components.events.handler;
 
-import de.linzn.stemLink.components.ILinkMask;
+import de.linzn.stemLink.components.StemLinkWrapper;
 import de.linzn.stemLink.components.events.IEvent;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 
@@ -24,11 +24,11 @@ import java.util.logging.Level;
 public class EventBus {
     private final Map<Object, Map<Class<IEvent>, Method>> listenerSetMap;
 
-    private final ILinkMask iLinkMask;
+    private final StemLinkWrapper stemLinkWrapper;
 
-    public EventBus(ILinkMask iLinkMask) {
+    public EventBus(StemLinkWrapper stemLinkWrapper) {
         this.listenerSetMap = new HashMap<>();
-        this.iLinkMask = iLinkMask;
+        this.stemLinkWrapper = stemLinkWrapper;
     }
 
     /**
@@ -45,7 +45,7 @@ public class EventBus {
             if (annotation != null) {
                 Class<?>[] params = m.getParameterTypes();
                 if (params.length != 1) {
-                    iLinkMask.log("Method " + m + " in class " + listener.getClass() + " annotated with " + annotation + " does not have single argument", Level.SEVERE);
+                    stemLinkWrapper.log("Method " + m + " in class " + listener.getClass() + " annotated with " + annotation + " does not have single argument", Level.SEVERE);
                     continue;
                 }
                 Class<IEvent> iEvent = (Class<IEvent>) params[0];

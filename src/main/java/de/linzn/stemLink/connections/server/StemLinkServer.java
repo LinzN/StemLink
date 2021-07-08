@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.connections.server;
 
-import de.linzn.stemLink.components.ILinkMask;
+import de.linzn.stemLink.components.StemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
 
@@ -26,7 +26,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class StemLinkServer implements Runnable {
-    private final ILinkMask iLinkMask;
+    private final StemLinkWrapper stemLinkWrapper;
     private final String host;
     private final int port;
     private final CryptContainer cryptContainer;
@@ -37,19 +37,19 @@ public class StemLinkServer implements Runnable {
     /**
      * Constructor for the StemLinkServer class
      *
-     * @param host           hostname to bind the server
-     * @param port           port the bind the server
-     * @param iLinkMask      the ILinkMask mask class
-     * @param cryptContainer the CryptContainer for encryption in the client
+     * @param host            hostname to bind the server
+     * @param port            port the bind the server
+     * @param stemLinkWrapper the ILinkMask mask class
+     * @param cryptContainer  the CryptContainer for encryption in the client
      */
-    public StemLinkServer(String host, int port, ILinkMask iLinkMask, CryptContainer cryptContainer) {
+    public StemLinkServer(String host, int port, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
         this.host = host;
         this.port = port;
-        this.iLinkMask = iLinkMask;
+        this.stemLinkWrapper = stemLinkWrapper;
         this.stemLinks = new HashMap<>();
         this.cryptContainer = cryptContainer;
-        this.eventBus = new EventBus(iLinkMask);
-        iLinkMask.log("Initializing StemLinkServer on " + this.host + ":" + this.port, Level.INFO);
+        this.eventBus = new EventBus(stemLinkWrapper);
+        stemLinkWrapper.log("Initializing StemLinkServer on " + this.host + ":" + this.port, Level.INFO);
     }
 
     /**
@@ -59,7 +59,7 @@ public class StemLinkServer implements Runnable {
         try {
             this.server = new ServerSocket();
             this.server.bind(new InetSocketAddress(this.host, this.port));
-            this.iLinkMask.runThread(this);
+            this.stemLinkWrapper.runThread(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,11 +88,10 @@ public class StemLinkServer implements Runnable {
             try {
                 Socket socket = this.server.accept();
                 socket.setTcpNoDelay(true);
-                ServerConnection serverConnection = new ServerConnection(socket, this, this.iLinkMask, this.cryptContainer);
+                ServerConnection serverConnection = new ServerConnection(socket, this, this.stemLinkWrapper, this.cryptContainer);
                 serverConnection.setEnable();
-                this.stemLinks.put(serverConnection.getUUID(), serverConnection);
             } catch (IOException e) {
-                iLinkMask.log("Connection already closed!", Level.SEVERE);
+                stemLinkWrapper.log("Connection already closed!", Level.SEVERE);
             }
         } while (!this.server.isClosed());
     }

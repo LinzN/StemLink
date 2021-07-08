@@ -13,7 +13,7 @@ package de.linzn.stemLink.components;
 
 import java.util.logging.Level;
 
-public interface ILinkMask {
+public interface StemLinkWrapper {
     /**
      * Template for SingleThreadExecutor
      *
@@ -25,5 +25,5 @@ public interface ILinkMask {
      * @param log   info to log
      * @param level log level
      */
-    void log(String log, Level level);
+    void log(Object log, Level level);
 }

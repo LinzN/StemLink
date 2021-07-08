@@ -14,11 +14,12 @@ package de.linzn.stemLink.test;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.connections.client.ClientConnection;
 import de.linzn.stemLink.connections.server.StemLinkServer;
-import de.linzn.stemLink.test.utils.ILinkMaskTest;
+import de.linzn.stemLink.test.utils.StemLinkWrapperTest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 public class ServerTest {
     public static ServerTest serverTest;
@@ -44,7 +45,8 @@ public class ServerTest {
     }
 
     private void client1() {
-        clientConnection1 = new ClientConnection("127.0.0.1", 9090, new ILinkMaskTest(), this.cryptContainer);
+        UUID uuid = UUID.randomUUID();
+        clientConnection1 = new ClientConnection("127.0.0.1", 9090, uuid, new StemLinkWrapperTest(), this.cryptContainer);
         clientConnection1.registerEvents(new de.linzn.stemLink.test.client1.TestEventDataClient());
         clientConnection1.registerEvents(new de.linzn.stemLink.test.client1.TestEventConnectionClient());
         clientConnection1.setEnable();
@@ -66,7 +68,7 @@ public class ServerTest {
     }
 
     private void server() {
-        stemLinkServer = new StemLinkServer("127.0.0.1", 9090, new ILinkMaskTest(), cryptContainer);
+        stemLinkServer = new StemLinkServer("127.0.0.1", 9090, new StemLinkWrapperTest(), cryptContainer);
         stemLinkServer.registerEvents(new de.linzn.stemLink.test.server.TestEventDataServer());
         stemLinkServer.registerEvents(new de.linzn.stemLink.test.server.TestEventConnectionServer());
         stemLinkServer.openServer();

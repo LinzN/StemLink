@@ -11,13 +11,14 @@
 
 package de.linzn.stemLink.connections.client;
 
-import de.linzn.stemLink.components.ILinkMask;
+import de.linzn.stemLink.components.StemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
 import de.linzn.stemLink.connections.AbstractConnection;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -25,21 +26,23 @@ public class ClientConnection extends AbstractConnection {
     private final String host;
     private final int port;
     private boolean keepAlive;
+    private boolean handshakeConfirmed;
 
     /**
      * Constructor for the ClientConnection class
      *
-     * @param host           the host address for server to connect
-     * @param port           the port for the server to connect
-     * @param iLinkMask      the ILinkMask mask class
-     * @param cryptContainer the CryptContainer for encryption in the client
+     * @param host            the host address for server to connect
+     * @param port            the port for the server to connect
+     * @param stemLinkWrapper the ILinkMask mask class
+     * @param cryptContainer  the CryptContainer for encryption in the client
      */
-    public ClientConnection(String host, int port, ILinkMask iLinkMask, CryptContainer cryptContainer) {
-        super(new Socket(), iLinkMask, cryptContainer, new UUID(0L, 0L), new EventBus(iLinkMask));
+    public ClientConnection(String host, int port, UUID clientUUID, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
+        super(new Socket(), stemLinkWrapper, cryptContainer, clientUUID, new EventBus(stemLinkWrapper));
         this.host = host;
         this.port = port;
         this.keepAlive = true;
-        iLinkMask.log("Initializing new client connection to /" + host + ":" + port, Level.INFO);
+        this.handshakeConfirmed = false;
+        stemLinkWrapper.log("Initializing new client connection to /" + host + ":" + port, Level.INFO);
     }
 
     /**
@@ -66,18 +69,27 @@ public class ClientConnection extends AbstractConnection {
             try {
                 this.socket = new Socket(this.host, this.port);
                 this.socket.setTcpNoDelay(true);
-                this.triggerNewConnect();
 
-                while (this.isValidConnection()) {
-                    this.readInput();
+                while (this.isValidConnection() && !this.handshakeConfirmed) {
+                    this.read_handshake();
+                }
+
+                if (this.handshakeConfirmed) {
+                    this.call_connect();
+
+                    while (this.isValidConnection()) {
+                        this.readInput();
+                    }
                 }
             } catch (IOException e2) {
                 this.closeConnection();
             }
-            /* For reduce cpu usage in idl */
+
+            /* Reduce cpu usage while trying to reconnect to stemLink server */
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException exception) {
+                this.stemLinkWrapper.log(exception, Level.SEVERE);
             }
         }
     }
@@ -93,8 +105,67 @@ public class ClientConnection extends AbstractConnection {
             } catch (IOException ignored) {
             }
             if (this.keepAlive) {
-                this.triggerDisconnect();
+                if (this.handshakeConfirmed) {
+                    this.call_disconnect();
+                }
             }
+        }
+    }
+
+    @Override
+    public void read_handshake() throws IOException {
+        BufferedInputStream bInStream = new BufferedInputStream(this.socket.getInputStream());
+        DataInputStream dataInput = new DataInputStream(bInStream);
+        String value = new String(this.cryptManager.decryptFinal(dataInput.readUTF().getBytes()));
+
+        if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-1")) {
+            this.handshakeConfirmed = false;
+            write_handshake("STEP-2");
+        } else if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-COMPLETE")) {
+            this.handshakeConfirmed = true;
+            write_handshake("STEP-CONFIRM");
+
+        } else if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-CANCEL")) {
+            this.handshakeConfirmed = false;
+            this.stemLinkWrapper.log("Client::Cancel handshake process", Level.WARNING);
+            this.closeConnection();
+        }
+    }
+
+    @Override
+    protected void write_handshake(String step) {
+        long randomValue = new Date().getTime();
+        String value;
+
+        if (step.equalsIgnoreCase("STEP-2")) {
+            value = "CLIENT-HANDSHAKE-2_" + this.getUUID() + "_" + randomValue;
+            this.stemLinkWrapper.log("Client::Start handshake process", Level.FINE);
+            this.stemLinkWrapper.log("Client::" + this.getUUID(), Level.FINE);
+            this.stemLinkWrapper.log("Client::Send UUID for handshake", Level.FINE);
+
+        } else if (step.equalsIgnoreCase("STEP-CONFIRM")) {
+            value = "CLIENT-HANDSHAKE-COMPLETE-CONFIRM_" + randomValue;
+            this.stemLinkWrapper.log("Client::Confirming handshake process to server", Level.FINE);
+
+        } else {
+            this.handshakeConfirmed = false;
+            value = "CLIENT-HANDSHAKE-CANCEL_" + randomValue;
+            this.stemLinkWrapper.log("Client::Cancel handshake process", Level.FINE);
+        }
+
+        if (this.isValidConnection()) {
+            try {
+                BufferedOutputStream bOutStream = new BufferedOutputStream(this.socket.getOutputStream());
+                DataOutputStream dataOut = new DataOutputStream(bOutStream);
+
+                dataOut.writeUTF(new String(this.cryptManager.encryptFinal(value.getBytes())));
+
+                bOutStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            stemLinkWrapper.log("Handshake failed on STEP: " + step, Level.SEVERE);
         }
     }
 

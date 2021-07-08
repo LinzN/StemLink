@@ -11,7 +11,7 @@
 
 package de.linzn.stemLink.connections;
 
-import de.linzn.stemLink.components.ILinkMask;
+import de.linzn.stemLink.components.StemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.encryption.CryptManager;
 import de.linzn.stemLink.components.events.ConnectEvent;
@@ -27,8 +27,8 @@ import java.util.logging.Level;
 
 public abstract class AbstractConnection implements Runnable {
 
-    private final ILinkMask iLinkMask;
-    private final CryptManager cryptManager;
+    protected final CryptManager cryptManager;
+    protected final StemLinkWrapper stemLinkWrapper;
     protected Socket socket;
     protected UUID uuid;
     protected EventBus eventBus;
@@ -36,15 +36,15 @@ public abstract class AbstractConnection implements Runnable {
     /**
      * Constructor for the AbstractConnection class
      *
-     * @param socket         active connection
-     * @param iLinkMask      the iLinkMask mask class
-     * @param cryptContainer the CryptContainer for encryption in the client
-     * @param uuid           the uuid for this client
-     * @param eventBus       the eventBus for the connection
+     * @param socket          active connection
+     * @param stemLinkWrapper the iLinkMask mask class
+     * @param cryptContainer  the CryptContainer for encryption in the client
+     * @param uuid            the uuid for this client
+     * @param eventBus        the eventBus for the connection
      */
-    public AbstractConnection(Socket socket, ILinkMask iLinkMask, CryptContainer cryptContainer, UUID uuid, EventBus eventBus) {
+    public AbstractConnection(Socket socket, StemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer, UUID uuid, EventBus eventBus) {
         this.socket = socket;
-        this.iLinkMask = iLinkMask;
+        this.stemLinkWrapper = stemLinkWrapper;
         this.cryptManager = new CryptManager(cryptContainer);
         this.uuid = uuid;
         this.eventBus = eventBus;
@@ -61,7 +61,7 @@ public abstract class AbstractConnection implements Runnable {
      * Enable this connection
      */
     public synchronized void setEnable() {
-        this.iLinkMask.runThread(this);
+        this.stemLinkWrapper.runThread(this);
     }
 
     /**
@@ -77,10 +77,8 @@ public abstract class AbstractConnection implements Runnable {
      * @param channel channel of the receive event
      * @param bytes   raw data for the event
      */
-    private void triggerDataInput(String channel, byte[] bytes) {
-        //if (zMask.isDebugging())
-        //    zMask.log("[" + Thread.currentThread().getName() + "] " + "IncomingData from Socket");
-        this.iLinkMask.runThread(() -> {
+    private void call_data_event(String channel, byte[] bytes) {
+        this.stemLinkWrapper.runThread(() -> {
             IEvent iEvent = new ReceiveDataEvent(channel, this.uuid, bytes, this);
             this.eventBus.callEventHandler(iEvent);
         });
@@ -89,9 +87,9 @@ public abstract class AbstractConnection implements Runnable {
     /**
      * Trigger a new connect event
      */
-    protected void triggerNewConnect() {
-        iLinkMask.log("Connected to Socket", Level.FINE);
-        this.iLinkMask.runThread(() -> {
+    protected void call_connect() {
+        stemLinkWrapper.log("Connected to Socket", Level.FINE);
+        this.stemLinkWrapper.runThread(() -> {
             IEvent iEvent = new ConnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
         });
@@ -100,9 +98,9 @@ public abstract class AbstractConnection implements Runnable {
     /**
      * Trigger a disconnect event
      */
-    protected void triggerDisconnect() {
-        iLinkMask.log("Disconnected from Socket", Level.FINE);
-        this.iLinkMask.runThread(() -> {
+    protected void call_disconnect() {
+        stemLinkWrapper.log("Disconnected from Socket", Level.FINE);
+        this.stemLinkWrapper.runThread(() -> {
             IEvent iEvent = new DisconnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
         });
@@ -115,6 +113,17 @@ public abstract class AbstractConnection implements Runnable {
      */
     public UUID getUUID() {
         return this.uuid;
+    }
+
+    /**
+     * Update uuid of this connection
+     * Only available in pre-handshake
+     *
+     * @param uuid new UUID to update
+     */
+    public void updateUUID(UUID uuid) {
+        this.stemLinkWrapper.log("Update UUID of connection: " + uuid, Level.INFO);
+        this.uuid = uuid;
     }
 
     /**
@@ -147,12 +156,10 @@ public abstract class AbstractConnection implements Runnable {
 
         /* Default input read*/
         if (headerChannel.isEmpty()) {
-            iLinkMask.log("No channel in header", Level.SEVERE);
+            stemLinkWrapper.log("No channel in header", Level.SEVERE);
             return false;
         } else {
-            //if (this.iLinkMask.isDebugging())
-            //    iLinkMask.log("[" + Thread.currentThread().getName() + "] " + "Data amount: " + fullData.length);
-            this.triggerDataInput(headerChannel, fullData);
+            this.call_data_event(headerChannel, fullData);
             return true;
         }
     }
@@ -168,8 +175,8 @@ public abstract class AbstractConnection implements Runnable {
             try {
                 byte[] fullData = this.cryptManager.encryptFinal(bytes);
 
-                BufferedOutputStream bOutSream = new BufferedOutputStream(this.socket.getOutputStream());
-                DataOutputStream dataOut = new DataOutputStream(bOutSream);
+                BufferedOutputStream bOutStream = new BufferedOutputStream(this.socket.getOutputStream());
+                DataOutputStream dataOut = new DataOutputStream(bOutStream);
 
                 dataOut.writeUTF(new String(this.cryptManager.encryptFinal(headerChannel.getBytes())));
                 dataOut.writeInt(fullData.length);
@@ -177,14 +184,29 @@ public abstract class AbstractConnection implements Runnable {
                 for (byte aFullData : fullData) {
                     dataOut.writeByte(aFullData);
                 }
-                bOutSream.flush();
+                bOutStream.flush();
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            iLinkMask.log("The connection is closed. No output possible!", Level.SEVERE);
+            stemLinkWrapper.log("The connection is closed. No output possible!", Level.SEVERE);
         }
     }
+
+    /**
+     * Read handshake data from server/client
+     *
+     * @throws IOException Exception if something failed
+     */
+    protected abstract void read_handshake() throws IOException;
+
+
+    /**
+     * Write handshake data for server/client
+     *
+     * @param step current handshake step defined in function itself
+     */
+    protected abstract void write_handshake(String step);
 
 }

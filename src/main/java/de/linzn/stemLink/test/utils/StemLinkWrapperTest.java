@@ -11,12 +11,12 @@
 
 package de.linzn.stemLink.test.utils;
 
-import de.linzn.stemLink.components.ILinkMask;
+import de.linzn.stemLink.components.StemLinkWrapper;
 
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
-public class ILinkMaskTest implements ILinkMask {
+public class StemLinkWrapperTest implements StemLinkWrapper {
 
     @Override
     public void runThread(Runnable run) {
@@ -24,7 +24,7 @@ public class ILinkMaskTest implements ILinkMask {
     }
 
     @Override
-    public void log(String logdata, Level loglevel) {
-        System.out.println(loglevel.getName() + "::" + logdata);
+    public void log(Object logdata, Level loglevel) {
+        System.out.println(loglevel.getName() + "::" + logdata.toString());
     }
 }
