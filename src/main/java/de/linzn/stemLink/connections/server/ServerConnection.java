@@ -15,6 +15,8 @@ import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.connections.AbstractConnection;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
@@ -42,24 +44,27 @@ public class ServerConnection extends AbstractConnection {
 
     @Override
     public void run() {
-        this.write_handshake("STEP-1");
         try {
+            this.write_handshake("STEP-1");
+
             while (!this.stemLinkServer.server.isClosed() && this.isValidConnection() && !this.handshakeConfirmed) {
                 this.read_handshake();
             }
-        } catch (IOException e2) {
-            this.closeConnection();
-        }
 
-        if (this.handshakeConfirmed) {
-            this.call_connect();
-            try {
+
+            if (this.handshakeConfirmed) {
+                this.call_connect();
+
                 while (!this.stemLinkServer.server.isClosed() && this.isValidConnection()) {
                     this.readInput();
                 }
-            } catch (IOException e2) {
-                this.closeConnection();
             }
+        } catch (IOException e2) {
+            this.closeConnection();
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            stemLinkWrapper.log("Encryption Error! Closing connection", Level.SEVERE);
+            stemLinkWrapper.log(e, Level.SEVERE);
+            this.closeConnection();
         }
     }
 
@@ -81,7 +86,7 @@ public class ServerConnection extends AbstractConnection {
     }
 
     @Override
-    protected void read_handshake() throws IOException {
+    protected void read_handshake() throws IOException, IllegalBlockSizeException, BadPaddingException {
         BufferedInputStream bInStream = new BufferedInputStream(this.socket.getInputStream());
         DataInputStream dataInput = new DataInputStream(bInStream);
         String value = new String(this.cryptManager.decryptFinal(dataInput.readUTF().getBytes()));

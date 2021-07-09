@@ -20,6 +20,8 @@ import de.linzn.stemLink.components.events.IEvent;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 import de.linzn.stemLink.components.events.handler.EventBus;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.*;
 import java.net.Socket;
 import java.util.UUID;
@@ -141,7 +143,7 @@ public abstract class AbstractConnection implements Runnable {
      * @return boolean value if read was successful
      * @throws IOException Fired a exception if something went wrong
      */
-    protected boolean readInput() throws IOException {
+    protected boolean readInput() throws IOException, IllegalBlockSizeException, BadPaddingException {
         BufferedInputStream bInStream = new BufferedInputStream(this.socket.getInputStream());
         DataInputStream dataInput = new DataInputStream(bInStream);
         String headerChannel = new String(this.cryptManager.decryptFinal(dataInput.readUTF().getBytes()));
@@ -199,7 +201,7 @@ public abstract class AbstractConnection implements Runnable {
      *
      * @throws IOException Exception if something failed
      */
-    protected abstract void read_handshake() throws IOException;
+    protected abstract void read_handshake() throws IOException, IllegalBlockSizeException, BadPaddingException;
 
 
     /**

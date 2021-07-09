@@ -16,6 +16,8 @@ import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
 import de.linzn.stemLink.connections.AbstractConnection;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
@@ -84,8 +86,11 @@ public class ClientConnection extends AbstractConnection {
                 }
             } catch (IOException e2) {
                 this.closeConnection();
+            } catch (BadPaddingException | IllegalBlockSizeException e) {
+                stemLinkWrapper.log("Encryption Error! Closing connection", Level.SEVERE);
+                stemLinkWrapper.log(e, Level.SEVERE);
+                this.closeConnection();
             }
-
             /* Reduce cpu usage while trying to reconnect to stemLink server */
             try {
                 Thread.sleep(50);
@@ -114,7 +119,7 @@ public class ClientConnection extends AbstractConnection {
     }
 
     @Override
-    public void read_handshake() throws IOException {
+    public void read_handshake() throws IOException, IllegalBlockSizeException, BadPaddingException {
         BufferedInputStream bInStream = new BufferedInputStream(this.socket.getInputStream());
         DataInputStream dataInput = new DataInputStream(bInStream);
         String value = new String(this.cryptManager.decryptFinal(dataInput.readUTF().getBytes()));

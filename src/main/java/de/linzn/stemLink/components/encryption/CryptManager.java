@@ -56,13 +56,8 @@ public class CryptManager {
      * @param bytes Encrypted bytes as array
      * @return Decrypted bytes as array
      */
-    public byte[] decryptFinal(byte[] bytes) {
-        try {
-            return decryptCipher.doFinal(Base64.getDecoder().decode(bytes));
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public byte[] decryptFinal(byte[] bytes) throws IllegalBlockSizeException, BadPaddingException {
+        return decryptCipher.doFinal(Base64.getDecoder().decode(bytes));
     }
 
 
