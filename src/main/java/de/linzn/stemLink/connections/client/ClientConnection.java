@@ -69,6 +69,7 @@ public class ClientConnection extends AbstractConnection {
             try {
                 this.socket = new Socket(this.host, this.port);
                 this.socket.setTcpNoDelay(true);
+                this.handshakeConfirmed = false;
 
                 while (this.isValidConnection() && !this.handshakeConfirmed) {
                     this.read_handshake();
