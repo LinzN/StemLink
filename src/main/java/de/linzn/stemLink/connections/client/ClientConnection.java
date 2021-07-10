@@ -102,6 +102,15 @@ public class ClientConnection extends AbstractConnection {
     }
 
     /**
+     * Check if the stemLink is online
+     *
+     * @return boolean value if stemLink is online
+     */
+    public boolean isOnline() {
+        return this.keepAlive && this.isValidConnection();
+    }
+
+    /**
      * Close this connection
      */
     @Override

@@ -97,6 +97,10 @@ public class StemLinkServer implements Runnable {
         } while (!this.server.isClosed());
     }
 
+    public boolean isOnline() {
+        return !this.server.isClosed();
+    }
+
     /**
      * Get client with a uuid
      *
