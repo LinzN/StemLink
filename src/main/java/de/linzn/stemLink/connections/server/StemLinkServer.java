@@ -14,6 +14,7 @@ package de.linzn.stemLink.connections.server;
 import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
+import de.linzn.stemLink.connections.ClientType;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -113,6 +114,43 @@ public class StemLinkServer implements Runnable {
      */
     public Map<UUID, ServerConnection> getClients() {
         return this.stemLinks;
+    }
+
+
+    /**
+     * Get amount of connected clients
+     *
+     * @return Amount of connected clients
+     */
+    public int getAmountOfClients() {
+        return this.getClients().size();
+    }
+
+    /**
+     * Get amount of connected clients by ClientType
+     *
+     * @param clientType ClientType to get amount of connected clients
+     * @return Amount of connected clients of the given ClientType
+     */
+    public int getAmountOfClientsByType(ClientType clientType) {
+        return this.getClientsByType(clientType).size();
+    }
+
+    /**
+     * Get all clients with the given ClientType
+     *
+     * @param clientType ClientType to get all clients for it
+     * @return Client of the given ClientType
+     */
+    public Map<UUID, ServerConnection> getClientsByType(ClientType clientType) {
+        Map<UUID, ServerConnection> clientsOfType = new HashMap<>();
+        for (UUID uuid : this.stemLinks.keySet()) {
+            ServerConnection serverConnection = this.stemLinks.get(uuid);
+            if (serverConnection.getClientType() == clientType) {
+                clientsOfType.put(uuid, serverConnection);
+            }
+        }
+        return clientsOfType;
     }
 
     /**

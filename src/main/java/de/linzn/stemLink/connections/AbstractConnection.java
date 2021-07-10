@@ -34,6 +34,7 @@ public abstract class AbstractConnection implements Runnable {
     protected Socket socket;
     protected UUID uuid;
     protected EventBus eventBus;
+    protected ClientType clientType;
 
     /**
      * Constructor for the AbstractConnection class
@@ -44,11 +45,12 @@ public abstract class AbstractConnection implements Runnable {
      * @param uuid            the uuid for this client
      * @param eventBus        the eventBus for the connection
      */
-    public AbstractConnection(Socket socket, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer, UUID uuid, EventBus eventBus) {
+    public AbstractConnection(Socket socket, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer, UUID uuid, ClientType clientType, EventBus eventBus) {
         this.socket = socket;
         this.stemLinkWrapper = stemLinkWrapper;
         this.cryptManager = new CryptManager(cryptContainer);
         this.uuid = uuid;
+        this.clientType = clientType;
         this.eventBus = eventBus;
     }
 
@@ -111,10 +113,19 @@ public abstract class AbstractConnection implements Runnable {
     /**
      * Get the uuid uf this client
      *
-     * @return the uuid uf thid client
+     * @return uuid of the client
      */
     public UUID getUUID() {
         return this.uuid;
+    }
+
+    /**
+     * Get ClientType of this client
+     *
+     * @return ClientType of the client
+     */
+    public ClientType getClientType() {
+        return clientType;
     }
 
     /**
@@ -126,6 +137,16 @@ public abstract class AbstractConnection implements Runnable {
     public void updateUUID(UUID uuid) {
         this.stemLinkWrapper.log("Update UUID of connection: " + uuid, Level.INFO);
         this.uuid = uuid;
+    }
+
+    /**
+     * Update client type of the connection
+     *
+     * @param clientType new client type to update
+     */
+    public void updateClientType(ClientType clientType) {
+        this.stemLinkWrapper.log("Update ClientType of connection: " + clientType, Level.INFO);
+        this.clientType = clientType;
     }
 
     /**

@@ -12,6 +12,7 @@
 package de.linzn.stemLink.test;
 
 import de.linzn.stemLink.components.encryption.CryptContainer;
+import de.linzn.stemLink.connections.ClientType;
 import de.linzn.stemLink.connections.client.ClientConnection;
 import de.linzn.stemLink.connections.server.StemLinkServer;
 import de.linzn.stemLink.test.utils.StemLinkWrapperTest;
@@ -46,7 +47,7 @@ public class ServerTest {
 
     private void client1() {
         UUID uuid = UUID.randomUUID();
-        clientConnection1 = new ClientConnection("127.0.0.1", 9090, uuid, new StemLinkWrapperTest(), this.cryptContainer);
+        clientConnection1 = new ClientConnection("127.0.0.1", 9090, uuid, ClientType.DEFAULT, new StemLinkWrapperTest(), this.cryptContainer);
         clientConnection1.registerEvents(new de.linzn.stemLink.test.client1.TestEventDataClient());
         clientConnection1.registerEvents(new de.linzn.stemLink.test.client1.TestEventConnectionClient());
         clientConnection1.setEnable();

@@ -14,6 +14,7 @@ package de.linzn.stemLink.connections.server;
 import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.connections.AbstractConnection;
+import de.linzn.stemLink.connections.ClientType;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -36,7 +37,7 @@ public class ServerConnection extends AbstractConnection {
      * @param cryptContainer  the CryptContainer for encryption in the client
      */
     ServerConnection(Socket socket, StemLinkServer stemLinkServer, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
-        super(socket, stemLinkWrapper, cryptContainer, new UUID(0, 0), stemLinkServer.eventBus);
+        super(socket, stemLinkWrapper, cryptContainer, new UUID(0, 0), ClientType.NONE, stemLinkServer.eventBus);
         this.stemLinkServer = stemLinkServer;
         stemLinkWrapper.log("Initializing new server connection from " + socket.getRemoteSocketAddress(), Level.INFO);
     }
@@ -94,7 +95,9 @@ public class ServerConnection extends AbstractConnection {
         if (value.split("_")[0].equalsIgnoreCase("CLIENT-HANDSHAKE-2")) {
             this.handshakeConfirmed = false;
             UUID clientUUID = UUID.fromString(value.split("_")[1]);
+            ClientType clientType = ClientType.valueOf(value.split("_")[2]);
             this.updateUUID(clientUUID);
+            this.updateClientType(clientType);
             this.write_handshake("STEP-CONFIRM");
         } else if (value.split("_")[0].equalsIgnoreCase("CLIENT-HANDSHAKE-COMPLETE-CONFIRM")) {
             this.handshakeConfirmed = true;

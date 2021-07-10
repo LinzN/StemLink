@@ -15,6 +15,7 @@ import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.events.handler.EventBus;
 import de.linzn.stemLink.connections.AbstractConnection;
+import de.linzn.stemLink.connections.ClientType;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -38,8 +39,8 @@ public class ClientConnection extends AbstractConnection {
      * @param stemLinkWrapper the ILinkMask mask class
      * @param cryptContainer  the CryptContainer for encryption in the client
      */
-    public ClientConnection(String host, int port, UUID clientUUID, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
-        super(new Socket(), stemLinkWrapper, cryptContainer, clientUUID, new EventBus(stemLinkWrapper));
+    public ClientConnection(String host, int port, UUID clientUUID, ClientType clientType, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
+        super(new Socket(), stemLinkWrapper, cryptContainer, clientUUID, clientType, new EventBus(stemLinkWrapper));
         this.host = host;
         this.port = port;
         this.keepAlive = true;
@@ -144,10 +145,12 @@ public class ClientConnection extends AbstractConnection {
         String value;
 
         if (step.equalsIgnoreCase("STEP-2")) {
-            value = "CLIENT-HANDSHAKE-2_" + this.getUUID() + "_" + randomValue;
+            value = "CLIENT-HANDSHAKE-2_" + this.getUUID() + "_" + this.getClientType().name() + "_" + randomValue;
             this.stemLinkWrapper.log("Client::Start handshake process", Level.FINE);
             this.stemLinkWrapper.log("Client::" + this.getUUID(), Level.FINE);
             this.stemLinkWrapper.log("Client::Send UUID for handshake", Level.FINE);
+            this.stemLinkWrapper.log("Client::" + this.getClientType().name(), Level.FINE);
+            this.stemLinkWrapper.log("Client::Send ClientType for handshake", Level.FINE);
 
         } else if (step.equalsIgnoreCase("STEP-CONFIRM")) {
             value = "CLIENT-HANDSHAKE-COMPLETE-CONFIRM_" + randomValue;
