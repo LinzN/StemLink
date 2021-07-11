@@ -173,20 +173,20 @@ public abstract class AbstractConnection implements Runnable {
         String headerChannel = dataHead.getHeader();
         int dataSize = dataHead.getDataSize();
 
-        byte[] fullDataEncrypted = new byte[dataSize];
-        byte[] fullData;
+        byte[] encryptedDataPackage = new byte[dataSize];
+        byte[] decryptedDataPackage;
 
         for (int i = 0; i < dataSize; i++) {
-            fullDataEncrypted[i] = dataInput.readByte();
+            encryptedDataPackage[i] = dataInput.readByte();
         }
-        fullData = this.cryptManager.decryptFinal(fullDataEncrypted);
+        decryptedDataPackage = this.cryptManager.decryptFinal(encryptedDataPackage);
 
         /* Default input read*/
         if (headerChannel.isEmpty()) {
             stemLinkWrapper.log("No channel in header", Level.SEVERE);
             return false;
         } else {
-            this.call_data_event(headerChannel, fullData);
+            this.call_data_event(headerChannel, decryptedDataPackage);
             return true;
         }
 
@@ -201,16 +201,16 @@ public abstract class AbstractConnection implements Runnable {
     public void writeOutput(String headerChannel, byte[] bytes) {
         if (this.isValidConnection()) {
             try {
-                byte[] fullData = this.cryptManager.encryptFinal(bytes);
-                DataHead dataHead = new DataHead(headerChannel, fullData.length);
+                byte[] encryptedDataPackage = this.cryptManager.encryptFinal(bytes);
+                DataHead dataHead = new DataHead(headerChannel, encryptedDataPackage.length);
 
                 BufferedOutputStream bOutStream = new BufferedOutputStream(this.socket.getOutputStream());
                 DataOutputStream dataOut = new DataOutputStream(bOutStream);
 
                 dataOut.writeUTF(new String(this.cryptManager.encryptFinal(dataHead.toString().getBytes())));
 
-                for (byte aFullData : fullData) {
-                    dataOut.writeByte(aFullData);
+                for (byte dataByte : encryptedDataPackage) {
+                    dataOut.writeByte(dataByte);
                 }
                 bOutStream.flush();
 
