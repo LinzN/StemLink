@@ -14,6 +14,7 @@ package de.linzn.stemLink.connections;
 import de.linzn.stemLink.components.IStemLinkWrapper;
 import de.linzn.stemLink.components.encryption.CryptContainer;
 import de.linzn.stemLink.components.encryption.CryptManager;
+import de.linzn.stemLink.components.encryption.DataHead;
 import de.linzn.stemLink.components.events.ConnectEvent;
 import de.linzn.stemLink.components.events.DisconnectEvent;
 import de.linzn.stemLink.components.events.IEvent;
@@ -167,8 +168,11 @@ public abstract class AbstractConnection implements Runnable {
     protected boolean readInput() throws IOException, IllegalBlockSizeException, BadPaddingException {
         BufferedInputStream bInStream = new BufferedInputStream(this.socket.getInputStream());
         DataInputStream dataInput = new DataInputStream(bInStream);
-        String headerChannel = new String(this.cryptManager.decryptFinal(dataInput.readUTF().getBytes()));
-        int dataSize = dataInput.readInt();
+
+        DataHead dataHead = DataHead.fromString(new String(this.cryptManager.decryptFinal(dataInput.readUTF().getBytes())));
+        String headerChannel = dataHead.getHeader();
+        int dataSize = dataHead.getDataSize();
+
         byte[] fullDataEncrypted = new byte[dataSize];
         byte[] fullData;
 
@@ -185,6 +189,7 @@ public abstract class AbstractConnection implements Runnable {
             this.call_data_event(headerChannel, fullData);
             return true;
         }
+
     }
 
     /**
@@ -197,12 +202,12 @@ public abstract class AbstractConnection implements Runnable {
         if (this.isValidConnection()) {
             try {
                 byte[] fullData = this.cryptManager.encryptFinal(bytes);
+                DataHead dataHead = new DataHead(headerChannel, fullData.length);
 
                 BufferedOutputStream bOutStream = new BufferedOutputStream(this.socket.getOutputStream());
                 DataOutputStream dataOut = new DataOutputStream(bOutStream);
 
-                dataOut.writeUTF(new String(this.cryptManager.encryptFinal(headerChannel.getBytes())));
-                dataOut.writeInt(fullData.length);
+                dataOut.writeUTF(new String(this.cryptManager.encryptFinal(dataHead.toString().getBytes())));
 
                 for (byte aFullData : fullData) {
                     dataOut.writeByte(aFullData);
