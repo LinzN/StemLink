@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 public class EventBus {
-    private final Map<Object, Map<Class<IEvent>, Method>> listenerSetMap;
+    private final Map<Object, Map<Method, Class<IEvent>>> listenerSetMap;
 
     private final IStemLinkWrapper stemLinkWrapper;
 
@@ -37,8 +37,8 @@ public class EventBus {
      * @param listener Listener to check if a method has an annotation
      * @return Map with event class and methods for this listener
      */
-    private Map<Class<IEvent>, Method> findHandlers(Object listener) {
-        Map<Class<IEvent>, Method> methods = new HashMap<>();
+    private Map<Method, Class<IEvent>> findHandlers(Object listener) {
+        Map<Method, Class<IEvent>> methods = new HashMap<>();
 
         for (Method m : listener.getClass().getDeclaredMethods()) {
             EventHandler annotation = m.getAnnotation(EventHandler.class);
@@ -49,7 +49,7 @@ public class EventBus {
                     continue;
                 }
                 Class<IEvent> iEvent = (Class<IEvent>) params[0];
-                methods.put(iEvent, m);
+                methods.put(m, iEvent);
             }
         }
         return methods;
@@ -78,13 +78,14 @@ public class EventBus {
      */
     public void callEventHandler(IEvent event) {
         for (Object classInstance : this.listenerSetMap.keySet()) {
-            Map<Class<IEvent>, Method> handler = this.listenerSetMap.get(classInstance);
-            for (Class<IEvent> iClass : handler.keySet()) {
+            Map<Method, Class<IEvent>> handler = this.listenerSetMap.get(classInstance);
+            for (Method method : handler.keySet()) {
+                Class<IEvent> iClass = handler.get(method);
                 if (iClass.equals(event.getClass())) {
-                    EventHandler annotation = handler.get(iClass).getAnnotation(EventHandler.class);
+                    EventHandler annotation = method.getAnnotation(EventHandler.class);
                     String annotationChannel = annotation.channel();
                     if (annotationChannel.isEmpty() || ((ReceiveDataEvent) event).getChannel().equalsIgnoreCase(annotationChannel)) {
-                        callMethod(event, handler.get(iClass), classInstance);
+                        callMethod(event, method, classInstance);
                     }
                 }
             }
@@ -97,7 +98,7 @@ public class EventBus {
      * @param classInstance Event listener classInstance to register
      */
     public void register(Object classInstance) {
-        Map<Class<IEvent>, Method> handler = findHandlers(classInstance);
+        Map<Method, Class<IEvent>> handler = findHandlers(classInstance);
         this.listenerSetMap.put(classInstance, handler);
     }
 
