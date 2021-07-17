@@ -45,7 +45,8 @@ public class ClientConnection extends AbstractConnection {
         this.port = port;
         this.keepAlive = true;
         this.handshakeConfirmed = false;
-        stemLinkWrapper.log("Initializing new client connection to /" + host + ":" + port, Level.INFO);
+        stemLinkWrapper.log("Initializing stemLink to server /" + host + ":" + port, Level.INFO);
+
     }
 
     /**

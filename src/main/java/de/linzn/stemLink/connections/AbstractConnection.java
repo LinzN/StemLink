@@ -93,7 +93,7 @@ public abstract class AbstractConnection implements Runnable {
      * Trigger a new connect event
      */
     protected void call_connect() {
-        stemLinkWrapper.log("Connected to Socket", Level.FINE);
+        stemLinkWrapper.log("Stemlink is now connected to remote " + this.socket.getRemoteSocketAddress(), Level.FINE);
         this.stemLinkWrapper.runThread(() -> {
             IEvent iEvent = new ConnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);
@@ -104,7 +104,7 @@ public abstract class AbstractConnection implements Runnable {
      * Trigger a disconnect event
      */
     protected void call_disconnect() {
-        stemLinkWrapper.log("Disconnected from Socket", Level.FINE);
+        stemLinkWrapper.log("Stemlink is disconnected from remote " + this.socket.getRemoteSocketAddress(), Level.FINE);
         this.stemLinkWrapper.runThread(() -> {
             IEvent iEvent = new DisconnectEvent(this.uuid, this);
             this.eventBus.callEventHandler(iEvent);

@@ -39,7 +39,7 @@ public class ServerConnection extends AbstractConnection {
     ServerConnection(Socket socket, StemLinkServer stemLinkServer, IStemLinkWrapper stemLinkWrapper, CryptContainer cryptContainer) {
         super(socket, stemLinkWrapper, cryptContainer, new UUID(0, 0), ClientType.NONE, stemLinkServer.eventBus);
         this.stemLinkServer = stemLinkServer;
-        stemLinkWrapper.log("Initializing new server connection from " + socket.getRemoteSocketAddress(), Level.INFO);
+        stemLinkWrapper.log("Initializing stemLink to client " + socket.getRemoteSocketAddress(), Level.INFO);
     }
 
 

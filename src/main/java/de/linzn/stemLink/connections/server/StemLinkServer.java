@@ -50,7 +50,7 @@ public class StemLinkServer implements Runnable {
         this.stemLinks = new HashMap<>();
         this.cryptContainer = cryptContainer;
         this.eventBus = new EventBus(stemLinkWrapper);
-        stemLinkWrapper.log("Initializing StemLinkServer on " + this.host + ":" + this.port, Level.INFO);
+        stemLinkWrapper.log("Initializing stemLink-server on " + this.host + ":" + this.port, Level.INFO);
     }
 
     /**
