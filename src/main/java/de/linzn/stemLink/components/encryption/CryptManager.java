@@ -66,7 +66,7 @@ public class CryptManager {
      *
      * @param cryptContainer Key and vector as CryptContainer
      */
-    private void setEncryption(CryptContainer cryptContainer) {
+    public void setEncryption(CryptContainer cryptContainer) {
         try {
             IvParameterSpec iv = new IvParameterSpec(cryptContainer.getVectorB16());
             SecretKeySpec skeySpec = new SecretKeySpec(cryptContainer.getKey(), "AES");

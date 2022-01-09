@@ -138,7 +138,10 @@ public class ClientConnection extends AbstractConnection {
         if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-1")) {
             this.handshakeConfirmed = false;
             write_handshake("STEP-2");
-        } else if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-COMPLETE")) {
+        }else if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-2")) {
+            this.handshakeConfirmed = false;
+            write_handshake("STEP-3");
+        }  else if (value.split("_")[0].equalsIgnoreCase("SERVER-HANDSHAKE-COMPLETE")) {
             this.handshakeConfirmed = true;
             write_handshake("STEP-CONFIRM");
 

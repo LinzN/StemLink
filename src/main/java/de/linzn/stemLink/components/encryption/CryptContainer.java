@@ -11,6 +11,12 @@
 
 package de.linzn.stemLink.components.encryption;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+
 public class CryptContainer {
     private final byte[] key;
     private final byte[] vectorB16;
@@ -24,6 +30,30 @@ public class CryptContainer {
      */
     public CryptContainer(String key, byte[] vectorB16) {
         this.key = hexStringToByteArray(key);
+        this.vectorB16 = vectorB16;
+    }
+
+    /**
+     * Constructor for create a CryptContainer
+     * Container for symmetric AES encryption
+     *
+     * @param encodedKey       32 char length key as string for encryption (256 bit)
+     * @param vectorB16 16 byte vector as byte array (128 bit)
+     */
+    public CryptContainer(byte[] encodedKey, byte[] vectorB16) {
+        this.key = encodedKey;
+        this.vectorB16 = vectorB16;
+    }
+
+    /**
+     * Constructor for create a CryptContainer
+     * Container for symmetric AES encryption
+     *
+     * @param key       32 char length key as string for encryption (256 bit)
+     * @param vectorB16 16 byte vector as byte array (128 bit)
+     */
+    public CryptContainer(SecretKey key, byte[] vectorB16) {
+        this.key = key.getEncoded();
         this.vectorB16 = vectorB16;
     }
 
@@ -96,7 +126,7 @@ public class CryptContainer {
      *
      * @return 32 byte encryption key as array
      */
-    byte[] getKey() {
+    public byte[] getKey() {
         return key;
     }
 
@@ -105,8 +135,23 @@ public class CryptContainer {
      *
      * @return 16 byte vector key as array
      */
-    byte[] getVectorB16() {
+    public byte[] getVectorB16() {
         return vectorB16;
+    }
+
+    /**
+     * Generate Random CryptContainer with random Keys and vector data
+     * @return Random CryptContainer
+     */
+
+    public static CryptContainer generateRandomKeyAndVector() throws NoSuchAlgorithmException {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        SecretKey secretKey = keyGen.generateKey();
+
+        byte[] vectorB16 = new byte[16];
+        SecureRandom.getInstanceStrong().nextBytes(vectorB16);
+        return new CryptContainer(secretKey, vectorB16);
     }
 
 }

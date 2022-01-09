@@ -25,6 +25,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -36,6 +37,7 @@ public abstract class AbstractConnection implements Runnable {
     protected UUID uuid;
     protected EventBus eventBus;
     protected ClientType clientType;
+    protected int so_timeout = 10*1000;
 
     /**
      * Constructor for the AbstractConnection class
@@ -53,6 +55,12 @@ public abstract class AbstractConnection implements Runnable {
         this.uuid = uuid;
         this.clientType = clientType;
         this.eventBus = eventBus;
+        try {
+            this.socket.setSoTimeout(so_timeout);
+        } catch (SocketException e) {
+            e.printStackTrace();
+            stemLinkWrapper.log(e, Level.SEVERE);
+        }
     }
 
     public abstract void run();

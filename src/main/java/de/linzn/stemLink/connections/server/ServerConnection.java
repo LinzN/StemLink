@@ -52,7 +52,6 @@ public class ServerConnection extends AbstractConnection {
                 this.read_handshake();
             }
 
-
             if (this.handshakeConfirmed) {
                 this.call_connect();
 
@@ -99,7 +98,7 @@ public class ServerConnection extends AbstractConnection {
             this.updateUUID(clientUUID);
             this.updateClientType(clientType);
             this.write_handshake("STEP-CONFIRM");
-        } else if (value.split("_")[0].equalsIgnoreCase("CLIENT-HANDSHAKE-COMPLETE-CONFIRM")) {
+        }else if (value.split("_")[0].equalsIgnoreCase("CLIENT-HANDSHAKE-COMPLETE-CONFIRM")) {
             this.handshakeConfirmed = true;
             this.stemLinkServer.stemLinks.put(this.uuid, this);
             this.stemLinkWrapper.log("Server::Handshake complete", Level.FINE);
@@ -118,6 +117,10 @@ public class ServerConnection extends AbstractConnection {
         if (step.equalsIgnoreCase("STEP-1")) {
             value = "SERVER-HANDSHAKE-1_" + randomValue;
             this.stemLinkWrapper.log("Server::Start handshake process", Level.FINE);
+
+        }else if (step.equalsIgnoreCase("STEP-2")) {
+            value = "SERVER-HANDSHAKE-2_" + randomValue;
+            this.stemLinkWrapper.log("Server::Set new encryption level", Level.FINE);
 
         } else if (step.equalsIgnoreCase("STEP-CONFIRM")) {
             value = "SERVER-HANDSHAKE-COMPLETE_" + randomValue;
