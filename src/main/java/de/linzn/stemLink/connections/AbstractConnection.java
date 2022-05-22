@@ -20,12 +20,14 @@ import de.linzn.stemLink.components.events.DisconnectEvent;
 import de.linzn.stemLink.components.events.IEvent;
 import de.linzn.stemLink.components.events.ReceiveDataEvent;
 import de.linzn.stemLink.components.events.handler.EventBus;
+import de.linzn.stemLink.connections.client.ClientConnection;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -37,7 +39,7 @@ public abstract class AbstractConnection implements Runnable {
     protected UUID uuid;
     protected EventBus eventBus;
     protected ClientType clientType;
-    protected int so_timeout = 10*1000;
+    protected int so_timeout = 120 * 1000;
 
     /**
      * Constructor for the AbstractConnection class
@@ -193,6 +195,9 @@ public abstract class AbstractConnection implements Runnable {
         if (headerChannel.isEmpty()) {
             stemLinkWrapper.log("No channel in header", Level.SEVERE);
             return false;
+        } else if (headerChannel.equalsIgnoreCase("keep_alive_heartbeat")) {
+            this.answerKeepALiveHeartbeat(decryptedDataPackage);
+            return true;
         } else {
             this.call_data_event(headerChannel, decryptedDataPackage);
             return true;
@@ -244,5 +249,47 @@ public abstract class AbstractConnection implements Runnable {
      * @param step current handshake step defined in function itself
      */
     protected abstract void write_handshake(String step);
+
+    protected void requestKeepALiveHeartbeat() {
+        while (this.isValidConnection()) {
+            stemLinkWrapper.log("Heartbeat request send to stemLink!", Level.FINE);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+            try {
+                outputStream.writeLong(new Date().getTime());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            this.writeOutput("keep_alive_heartbeat", byteArrayOutputStream.toByteArray());
+            try {
+                Thread.sleep(1000 * 30);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    protected void answerKeepALiveHeartbeat(byte[] bytes) {
+        stemLinkWrapper.log("Heartbeat received from stemLink!", Level.FINE);
+        DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(bytes));
+        Long dateTime = null;
+        try {
+            dateTime = dataInputStream.readLong();
+            stemLinkWrapper.log("Data: " + dateTime, Level.FINE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (this instanceof ClientConnection) {
+            stemLinkWrapper.log("Writing back to server!", Level.FINE);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+            try {
+                outputStream.writeLong(dateTime);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            this.writeOutput("keep_alive_heartbeat", byteArrayOutputStream.toByteArray());
+        }
+    }
 
 }

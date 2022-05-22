@@ -81,7 +81,6 @@ public class ClientConnection extends AbstractConnection {
 
                 if (this.handshakeConfirmed) {
                     this.call_connect();
-
                     while (this.isValidConnection()) {
                         this.readInput();
                     }

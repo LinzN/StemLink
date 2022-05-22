@@ -54,7 +54,7 @@ public class ServerConnection extends AbstractConnection {
 
             if (this.handshakeConfirmed) {
                 this.call_connect();
-
+                this.stemLinkWrapper.runThread(this::requestKeepALiveHeartbeat);
                 while (!this.stemLinkServer.server.isClosed() && this.isValidConnection()) {
                     this.readInput();
                 }
